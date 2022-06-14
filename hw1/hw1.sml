@@ -114,11 +114,11 @@ fun month_range(day1 : int, day2 : int) =
 fun oldest(dates : (int * int * int) list) =
   let
     fun get_oldest(date : (int * int * int), dates : (int * int * int) list) = 
-    if null dates
-    then date
-    else if is_older(date, hd dates)
-      then get_oldest(date, tl dates)
-      else get_oldest(hd dates, tl dates)
+      if null dates
+      then date
+      else if is_older(date, hd dates)
+        then get_oldest(date, tl dates)
+        else get_oldest(hd dates, tl dates)
   in
     if null dates
     then NONE
