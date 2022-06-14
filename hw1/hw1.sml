@@ -5,12 +5,12 @@ fun date_year(date : (int * int * int)) = (#1 date)
 fun date_month(date : (int * int * int)) = (#2 date)
 fun date_day(date : (int * int * int)) = (#3 date)
     
-fun some(xs : int list, date : (int * int * int)) =
+fun includes(xs : int list, date : (int * int * int)) =
   if null xs
   then false
   else if date_month(date) = hd xs
     then true
-    else some(tl xs, date)
+    else includes(tl xs, date)
 
 (* Exercise 1 *)
 fun is_older(d1 : (int * int * int), d2 : (int * int * int)) =
@@ -34,7 +34,7 @@ fun number_in_month(xs : (int * int * int) list, month : int) =
 fun number_in_months(dates : (int * int * int) list, xs : int list) =
   if null dates
   then 0
-  else if some(xs, hd dates)
+  else if includes(xs, hd dates)
     then 1 + number_in_months(tl dates, xs)
     else number_in_months(tl dates, xs)
 
@@ -50,7 +50,7 @@ fun dates_in_month(dates : (int * int * int) list, month : int) =
 fun dates_in_months(dates : (int * int * int) list, xs : int list) =
   if null dates
   then []
-  else if some(xs, hd dates)
+  else if includes(xs, hd dates)
     then hd dates :: dates_in_months(tl dates, xs)
     else dates_in_months(tl dates, xs)
 
