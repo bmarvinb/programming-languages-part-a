@@ -1,6 +1,4 @@
-(*
-* Helpers
-*)
+(* Helpers *)
 fun date_year(date : (int * int * int)) = (#1 date)
 fun date_month(date : (int * int * int)) = (#2 date)
 fun date_day(date : (int * int * int)) = (#3 date)
@@ -14,13 +12,9 @@ fun includes(xs : int list, date : (int * int * int)) =
 
 (* Exercise 1 *)
 fun is_older(d1 : (int * int * int), d2 : (int * int * int)) =
-  if date_year(d1) > date_year(d2)
-  then false
-  else if date_month(d1) > date_month(d2)
-    then false
-    else if date_day(d1) > date_day(d2)
-      then false
-      else true
+    date_year(d1) < date_year(d2) 
+    orelse date_year(d1) = date_year(d2) andalso date_month(d1) < date_month(d2) 
+    orelse date_month(d1) = date_month(d2) andalso date_day(d1) < date_day(d2)
 
 (* Exercise 2 *)
 fun number_in_month(xs : (int * int * int) list, month : int) =
@@ -48,11 +42,9 @@ fun dates_in_month(dates : (int * int * int) list, month : int) =
 
 (* Exercise 5 *)
 fun dates_in_months(dates : (int * int * int) list, xs : int list) =
-  if null dates
+  if null xs
   then []
-  else if includes(xs, hd dates)
-    then hd dates :: dates_in_months(tl dates, xs)
-    else dates_in_months(tl dates, xs)
+  else dates_in_month(dates, hd xs) @ dates_in_months(dates, tl xs)
 
 (* Exercise 6 *)
 fun get_nth(xs : (string) list, n : int) = 
@@ -86,22 +78,22 @@ fun date_to_string(date : (int * int * int)) =
   end
 
 (* Exercise 8 *)
-fun number_before_reaching_sum(n : int, xs : (int) list) =
-  if n - (hd xs) - (hd (tl xs)) <= 0
-  then hd xs
-  else number_before_reaching_sum(n - hd xs, tl xs)
+fun number_before_reaching_sum(sum : int, xs : int list) =
+  let
+    fun count(n : int, i : int, xy : int list) =
+      if (n + (hd xy) >= sum)
+      then i
+      else count(n + (hd xy), i + 1, tl xy)
+  in
+    count(0, 0, xs)
+  end
 
 (* Exercise 9 *)
 fun what_month(day : int) =
   let 
-    val months = [31,29,31,30,30,30,31,31,30,31,30,31]
-
-    fun get_month_by_date(n: int, xs: (int) list, month: int) =
-      if n - (hd xs) <= 0
-        then month
-        else get_month_by_date(n - hd xs, tl xs, month + 1)
-  in
-    get_month_by_date(day, months, 1)
+    val months = [31,28,31,30,30,30,31,31,30,31,30,31] 
+  in 
+    number_before_reaching_sum(day, months) + 1
   end
 
 (* Exercise 10 *)
@@ -125,3 +117,85 @@ fun oldest(dates : (int * int * int) list) =
     else SOME(get_oldest(hd dates, tl dates))
   end
 
+(* Exercise 12 *)
+fun number_in_months_challenge(dates: (int * int * int) list, xs : int list) =
+  let
+    fun is_contain_month(dates : (int * int * int) list, month : int) =
+      if null dates
+      then false
+      else if (month = date_month(hd dates))
+        then true   
+        else is_contain_month(tl dates, month)
+
+    fun filter(xs: (int * int * int) list, xy: (int * int * int) list) =
+      if null xs
+      then xy
+      else if is_contain_month(xy, date_month(hd xs))
+        then filter(tl xs, xy)
+        else filter(tl xs, hd xs :: xy)
+
+    fun remove_duplicates(xs: (int * int * int) list) = filter(xs, [])
+  in
+    number_in_months(remove_duplicates(dates), xs)
+  end
+
+fun dates_in_months_challenge(dates : (int * int * int) list, xs : int list) =
+  let
+    fun contains(xs : int list, n : int) = 
+      if null xs
+      then false
+      else if n = (hd xs)
+        then true
+        else contains(tl xs, n)
+
+      fun filter(xs : int list, xy : int list) =
+        if null xs
+        then xy
+        else if contains(xy, (hd xs))
+          then filter(tl xs, xy)
+          else filter(tl xs, hd xs :: xy)
+
+    fun remove_duplicates(xs: int list) = filter(xs, []) 
+  in
+    dates_in_months(dates, remove_duplicates(xs))
+  end
+
+(* Exercise 13 *)
+
+fun reasonable_date(date : (int * int * int)) =
+  let
+    fun validate_year(year : int) = year > 0
+
+    fun validate_month(month : int) = (month >= 1) andalso (month <= 12)
+
+    fun is_leap_year(year : int) =
+      let
+        fun divisible_by_400() = year mod 400 = 0
+        fun divisible_by_4() = year mod 4 = 0
+        fun divisible_by_100() = year mod 100 = 0 
+      in
+        divisible_by_400() orelse (divisible_by_4() andalso not(divisible_by_100()))
+      end
+      
+    fun get_nth(xs : int list, n : int) = 
+      if n = 1
+      then (hd xs)
+      else get_nth(tl xs, n - 1)
+
+    fun days_in_month(month : int, year : int) = 
+      let
+        val calendar = [31,28,31,30,31,30,31,31,30,31,30,31]
+        val leap_calendar = [31,29,31,30,31,30,31,31,30,31,30,31]
+      in
+        if is_leap_year year
+        then get_nth(leap_calendar, month)
+        else get_nth(calendar, month)
+      end
+
+    fun validate_day(day : int, month : int, year : int) = 
+      day > 0 andalso day <= days_in_month(month, year)
+  in
+    validate_year(date_year date) 
+    andalso validate_month(date_month date)
+    andalso validate_day(date_day date, date_month date, date_year date)
+  end
