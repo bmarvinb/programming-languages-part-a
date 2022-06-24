@@ -1,4 +1,3 @@
-(* Helpers *)
 fun date_year(date : (int * int * int)) = (#1 date)
 fun date_month(date : (int * int * int)) = (#2 date)
 fun date_day(date : (int * int * int)) = (#3 date)
