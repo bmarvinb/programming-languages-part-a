@@ -95,9 +95,3 @@ fun check_pat p =
   in
     List.all (fn x => no_duplicates x xs) xs
   end
-
-(* Exercise 11 *)                 
-
-
-
-
